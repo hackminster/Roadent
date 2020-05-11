@@ -145,25 +145,20 @@ function splines($dbc, $run, $lapDistance)
             $p2_lng = $routeArray[2][$x];
             $deltaLat = $p2_lat - $p1_lat;
             $deltaLng = $p2_lng - $p1_lng;
-            echo $p1_lat. "<p> </p>";
-            echo $p1_lng. "<p> </p>";
-            echo $p2_lat. "<p></p>";
-            echo $p2_lng. "<p></p>";
-            echo $deltaLat. "<p></p>";
-            echo $deltaLng. "<p></p>";
-            $pointDeltaDist = sqrt ($deltaLat^2 + $deltaLng^2);
-            echo $pointDeltaDist."<p> </p>";
-            if($pointDeltaDist>0){
-                // echo $pointDeltaDist."<p> </p>";
-                $runDeltaDist = $lapDistance - $routeArray[0][$x-1];
-                // echo $pointDeltaDis."<p> </p>";
-                $factor = $runDeltaDist / $pointDeltaDist;
-                
-                // echo $runDeltaDist."<p> </p>";
-                // echo $factor."<p> </p>";
-                echo "bum";
-                echo "<points1 lat=\"" .$routeArray[1][$x-1] + $deltaLat*$factor. "\" lng=\"" .$routeArray[2][$x-1] + $deltaLng*$factor. "\"/>";
-                echo "<points2 lat=\"" .$routeArray[1][$x-1] + $deltaLat*$factor. "\" lng=\"" .$routeArray[2][$x-1] + $deltaLng*$factor. "\"/>";
+            // echo $p1_lat. "<p> </p>";
+            // echo $p1_lng. "<p> </p>";
+            // echo $p2_lat. "<p></p>";
+            // echo $p2_lng. "<p></p>";
+            // echo $deltaLat. "<p></p>";
+            // echo $deltaLng. "<p></p>";
+            $p1p2DeltaDist = $routeArray[0][$x]-$routeArray[0][$x-1];
+            $p1pxDeltaDist = $lapDistance-$routeArray[0][$x-1];
+            if($p1pxDeltaDist>0){
+                $factor = $p1pxDeltaDist / $p1p2DeltaDist;
+                // echo  $factor."<p> </p>";
+                // echo "bum";
+                echo "<points1 lat=\"" .round(($routeArray[1][$x-1] + $deltaLat*$factor),4). "\" lng=\"" .round(($routeArray[2][$x-1] + $deltaLng*$factor),4). "\"/>";
+                echo "<points2 lat=\"" .round(($routeArray[1][$x-1] + $deltaLat*$factor),4). "\" lng=\"" .round(($routeArray[2][$x-1] + $deltaLng*$factor),4). "\"/>";
             }
             else{
                 echo "<points1 lat=\"" .$routeArray[1][$x]. "\" lng=\"" .$routeArray[2][$x]. "\"/>";
@@ -178,7 +173,7 @@ function splines($dbc, $run, $lapDistance)
     }
 }
 
-// splines($dbc,$run,$lapDistance);
+
 
 
 
@@ -206,7 +201,7 @@ function line1($dbc, $run, $lapDistance)
     }
 }
 
-line1($dbc,$run,$lapDistance);
+
 
 // create points for 'remaining section of lap' spline
 function line2($dbc, $run, $lapDistance)
@@ -228,7 +223,7 @@ function line2($dbc, $run, $lapDistance)
     }
 }
 
-line2($dbc,$run,$lapDistance);
+
 
 function marker($dbc, $run, $lapDistance){
     
@@ -249,10 +244,9 @@ function marker($dbc, $run, $lapDistance){
     }
 }
 
-
-// for ($x = 0; $x < count($distanceAll[0]); $x++) {
-//     echo "<test lat = \"".$distanceAll[1][$x]."\"/>";
-// }
+splines($dbc,$run,$lapDistance);
+// line1($dbc,$run,$lapDistance);
+// line2($dbc,$run,$lapDistance);
 
 
 function markers($dbc, $run, $distanceAll){
