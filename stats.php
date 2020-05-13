@@ -11,17 +11,32 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 
+<?php // update session variable if new pet selected
 
+    session_start();
+
+    if ( isset ( $_GET['pet']))
+    {
+         $_SESSION['pet'] = $_GET['pet'];
+
+    }
+
+?>
 
 <nav class="navbar navbar-default">
     <div class="container-fluid">
         <div class="navbar-header">
-            <a class="navbar-brand" href="about.html">Hackminster</a>
+            <a class="navbar-brand" href="about.php">Hackminster</a>
         </div>
         <ul class="nav navbar-nav">
-            <li><a href="index.html">Home</a></li>
+            <li><a href="index.php">Home</a></li>
             <li><a href="leaderboard.php">Leaderboard</a></li>
-            <li><a href="run.php">Run</a></li>
+            <li><a href="run.php<?php
+                if ( isset ( $_SESSION['pet']))
+                {
+                    echo "?pet=".$_SESSION['pet'];
+                }            
+            ?>">Run</a></li>
             <li class="active"><a href="stats.php">Stats</a></li>
 
         </ul>
@@ -34,17 +49,7 @@
     </div>
 </nav>
 
-<?php // update session variable if new pet selected
 
-    session_start();
-
-    if ( isset ( $_GET['pet']))
-    {
-         $_SESSION['pet'] = $_GET['pet'];
-
-    }
-
-?>
 
 
 <div class="jumbotron text-center">

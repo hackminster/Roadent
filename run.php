@@ -31,10 +31,10 @@
 <nav class="navbar navbar-default">
     <div class="container-fluid">
         <div class="navbar-header">
-            <a class="navbar-brand" href="about.html">Hackminster</a>
+            <a class="navbar-brand" href="about.php">Hackminster</a>
         </div>
         <ul class="nav navbar-nav">
-            <li><a href="index.html">Home</a></li>
+            <li><a href="index.php">Home</a></li>
             <li><a href="leaderboard.php">Leaderboard</a></li>
             <li class="run"><a href="run.php">Run</a></li>
             <li><a href="stats.php">Stats</a></li>
