@@ -221,7 +221,7 @@
 
     <p></p>
 
-<!-- !!!!!!!!!33333333333333333333!!!!!!!!!!!!!!!!!!! -->
+
 
 
 
@@ -242,10 +242,12 @@
                     <th>Icon</th>
                     <th>Breed</th>
                 </tr>
-                <tr><td> <img src="http://maps.google.com/mapfiles/kml/paddle/ylw-blank-lv.png"> </td><td>  Gerbil </td></tr>
-                <tr><td> <img src="http://maps.google.com/mapfiles/kml/paddle/blu-blank-lv.png"> </td><td>  Rat </td></tr>
-                <tr><td> <img src="http://maps.google.com/mapfiles/kml/paddle/grn-blank-lv.png"> </td><td>  Hamster </td></tr>
-                <tr><td> <img src="http://maps.google.com/mapfiles/kml/paddle/wht-blank-lv.png"> </td><td>  Dwarf Hamster </td></tr>
+                <!-- <tr><td> <img src="http://maps.google.com/mapfiles/kml/paddle/ylw-blank-lv.png"> </td><td>  Gerbil </td></tr> -->
+                <tr><td> <img src="images/gerbilIcon.png" width="40"> </td><td>  Gerbil </td></tr>
+                <tr><td> <img src="images/ratIcon.png" width="40"> </td><td>  Rat </td></tr>
+                <tr><td> <img src="images/hamsterIcon.png" width="40"> </td><td>  Hamster </td></tr>
+                <tr><td> <img src="images/dwarfHamsterIcon.png" width="40"> </td><td>  Dwarf Hamster </td></tr>
+
             </table>
             
             
@@ -418,7 +420,8 @@
                 animation: google.maps.Animation.BOUNCE
             });
             
-            var person = {gerbil:"ylw-blank-lv.png", rat:"blu-blank-lv.png", hamster:"grn-blank-lv.png", dwarfhamster:"wht-blank-lv.png"};
+            // var person = {gerbil:"ylw-blank-lv.png", rat:"blu-blank-lv.png", hamster:"grn-blank-lv.png", dwarfhamster:"wht-blank-lv.png"};
+            var person = {gerbil:"gerbilIcon.png", rat:"ratIcon.png", hamster:"hamsterIcon.png", dwarfhamster:"dwarfHamsterIcon.png"};
             // str = str.replace(/\s+/g, '');
             var png = 'blu-blank-lv.png';
             
@@ -428,7 +431,13 @@
             var lng = parseFloat(markerG[i].getAttribute('lng'));
             var username = markerG[i].getAttribute('username');
             var breed = markerG[i].getAttribute('breed').replace(/\s+/g, '');
-            var image = 'http://maps.google.com/mapfiles/kml/paddle/'+person[breed];
+            // var image = 'http://maps.google.com/mapfiles/kml/paddle/'+person[breed];
+            // var image = 'images/'+person[breed];
+            var image = { 
+                // url: "images/RodentIcon.png",
+                url: "images/"+person[breed],
+                scaledSize: new google.maps.Size(35,20)
+                };
             var markerPos = new google.maps.LatLng(lat,lng);
             
             var marker = new google.maps.Marker({
