@@ -134,6 +134,45 @@ function splines($dbc, $run, $lapDistance)
     }
     else {echo '<p>'.mysqli_error($dbc).'</p>';
     }
+
+    $runDistArray = array([],[]);
+
+    $q = 'SELECT readings.wheel, MOD(SUM(readings.distance),runs.distance) as 
+    runDist FROM readings, runs WHERE readings.run = '.$run.' AND readings.run = runs.id GROUP BY wheel';
+  
+    $r = mysqli_query($dbc,$q);
+
+    if($r)
+    {
+        while($row = mysqli_fetch_array($r, MYSQLI_ASSOC))
+        {
+            array_push($runDistArray[0],$row["wheel"]);
+            array_push($runDistArray[1],$row["runDist"]);
+        }
+    }
+    else {echo '<p>'.mysqli_error($dbc).'</p>';
+    }
+
+
+    $petsOnRun = array([]);
+
+
+    $q = 'SELECT wheel FROM wheels WHERE run = '.$run;
+  
+    $r = mysqli_query($dbc,$q);
+
+    if($r)
+    {
+        while($row = mysqli_fetch_array($r, MYSQLI_ASSOC))
+        {
+            array_push($petsOnRun[0],$row["wheel"]);
+        }
+    }
+    else {echo '<p>'.mysqli_error($dbc).'</p>';
+    }
+
+
+
     for ($x = 0; $x < count($routeArray[0]); $x++) {
         if($routeArray[0][$x]<$lapDistance){
             echo "<points1 lat=\"" .$routeArray[1][$x]. "\" lng=\"" .$routeArray[2][$x]. "\"/>";
@@ -141,29 +180,27 @@ function splines($dbc, $run, $lapDistance)
         elseif($toggle==1){
             $p1_lat = $routeArray[1][$x-1];
             $p1_lng = $routeArray[2][$x-1];
-            $p2_lat = $routeArray[1][$x];
-            $p2_lng = $routeArray[2][$x];
-            $deltaLat = $p2_lat - $p1_lat;
-            $deltaLng = $p2_lng - $p1_lng;
-            // echo $p1_lat. "<p> </p>";
-            // echo $p1_lng. "<p> </p>";
-            // echo $p2_lat. "<p></p>";
-            // echo $p2_lng. "<p></p>";
-            // echo $deltaLat. "<p></p>";
-            // echo $deltaLng. "<p></p>";
-            $p1p2DeltaDist = $routeArray[0][$x]-$routeArray[0][$x-1];
-            $p1pxDeltaDist = $lapDistance-$routeArray[0][$x-1];
-            if($p1pxDeltaDist>0){
-                $factor = $p1pxDeltaDist / $p1p2DeltaDist;
-                // echo  $factor."<p> </p>";
-                // echo "bum";
-                echo "<points1 lat=\"" .round(($routeArray[1][$x-1] + $deltaLat*$factor),4). "\" lng=\"" .round(($routeArray[2][$x-1] + $deltaLng*$factor),4). "\"/>";
-                echo "<points2 lat=\"" .round(($routeArray[1][$x-1] + $deltaLat*$factor),4). "\" lng=\"" .round(($routeArray[2][$x-1] + $deltaLng*$factor),4). "\"/>";
-            }
-            else{
-                echo "<points1 lat=\"" .$routeArray[1][$x]. "\" lng=\"" .$routeArray[2][$x]. "\"/>";
-                echo "<points2 lat=\"" .$routeArray[1][$x]. "\" lng=\"" .$routeArray[2][$x]. "\"/>";
-            }
+            $p3_lat = $routeArray[1][$x];
+            $p3_lng = $routeArray[2][$x];
+            // $deltaLat = $p3_lat - $p1_lat;
+            // $deltaLng = $p3_lng - $p1_lng;
+            // $p1p2DeltaDist = $routeArray[0][$x]-$routeArray[0][$x-1];
+            // $p1pxDeltaDist = $lapDistance-$routeArray[0][$x-1];
+            // if($p1pxDeltaDist>0){
+                // $factor = $p1pxDeltaDist / $p1p2DeltaDist;
+            $factor = distFactor($routeArray[0][$x-1],$lapDistance,$routeArray[0][$x]);
+            $p2_lat = round($p1_lat + $factor * ($p3_lat - $p1_lat),4);
+            $p2_lng = round($p1_lng + $factor * ($p3_lng - $p1_lng),4);
+
+            // echo "<points1 lat=\"" .round(($routeArray[1][$x-1] + $deltaLat*$factor),4). "\" lng=\"" .round(($routeArray[2][$x-1] + $deltaLng*$factor),4). "\"/>";
+            // echo "<points2 lat=\"" .round(($routeArray[1][$x-1] + $deltaLat*$factor),4). "\" lng=\"" .round(($routeArray[2][$x-1] + $deltaLng*$factor),4). "\"/>";
+            echo "<points1 lat=\"" .$p2_lat. "\" lng=\"" .$p2_lng. "\"/>";
+            echo "<points2 lat=\"" .$p2_lat. "\" lng=\"" .$p2_lng. "\"/>";
+             // }
+            // else{
+            //     echo "<points1 lat=\"" .$routeArray[1][$x]. "\" lng=\"" .$routeArray[2][$x]. "\"/>";
+            //     echo "<points2 lat=\"" .$routeArray[1][$x]. "\" lng=\"" .$routeArray[2][$x]. "\"/>";
+            // }
 
             $toggle = 0;
         }
@@ -171,57 +208,27 @@ function splines($dbc, $run, $lapDistance)
             echo "<points2 lat=\"" .$routeArray[1][$x]. "\" lng=\"" .$routeArray[2][$x]. "\"/>";
         }
     }
+
+
+    for ($x = 0; $x < count($petsOnRun[0]); $x++) {
+        $lapDistance = $runDistArray[1];
+    }
+
+
+
 }
 
-
-
-
-
-
-
-
-
-// create points for 'lap run so far' spline
-function line1($dbc, $run, $lapDistance)
-{
-    $q = 'SELECT lat, lng
-    FROM routes 
-    WHERE routeID=' . $run . ' AND distance < ' . $lapDistance;
-
-    $r = mysqli_query($dbc,$q);
+function distFactor($dist1,$dist2,$dist3){
+    if($dist1!=$dist3){
+        return $factor = ($dist2 - $dist1) / ($dist3 - $dist1);
+    }
+    else{
+        return $factor = 0;
+    }
     
-    if($r)
-    {
-        while($row = mysqli_fetch_array($r, MYSQLI_ASSOC))
-        {
-            echo "<points1 lat=\"" .$row["lat"]. "\" lng=\"" . $row["lng"] . "\"/>";
-        }
-    }
-    else {echo '<p>'.mysqli_error($dbc).'</p>';
-    }
 }
 
 
-
-// create points for 'remaining section of lap' spline
-function line2($dbc, $run, $lapDistance)
-{
-    $q = 'SELECT lat, lng
-    FROM routes 
-    WHERE routeID=' . $run . ' AND distance > ' . $lapDistance;
-
-    $r = mysqli_query($dbc,$q);
-    
-    if($r)
-    {
-        while($row = mysqli_fetch_array($r, MYSQLI_ASSOC))
-        {
-            echo "<points2 lat=\"" .$row["lat"]. "\" lng=\"" . $row["lng"] . "\"/>";
-        }
-    }
-    else {echo '<p>'.mysqli_error($dbc).'</p>';
-    }
-}
 
 
 
@@ -244,15 +251,20 @@ function marker($dbc, $run, $lapDistance){
     }
 }
 
+
+
+
+
+
+
+
+
 splines($dbc,$run,$lapDistance);
-// line1($dbc,$run,$lapDistance);
-// line2($dbc,$run,$lapDistance);
 
 
 function markers($dbc, $run, $distanceAll){
     
     for ($x = 0; $x < count($distanceAll[0]); $x++) {
-        // echo($distanceAll[3][$x]);
 
         if(intval($distanceAll[3][$x])==$run){
             $q = 'SELECT lat, lng
@@ -271,13 +283,7 @@ function markers($dbc, $run, $distanceAll){
             else {echo '<p>'.mysqli_error($dbc).'</p>';
             }
         }
-
-    
-    
     }
-
-
-
 }
 
 
@@ -298,7 +304,6 @@ function mapType($dbc, $run){
     {
         $row = mysqli_fetch_array($r, MYSQLI_ASSOC);
 
-        // $row ="satellite" ;
         echo "<mapType style=\"" .$row["mapType"]. "\" />";
     }
     else
