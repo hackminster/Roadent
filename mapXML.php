@@ -14,9 +14,6 @@ echo "<markers>";
 if(ISSET($_GET["pet"])){
     $user = intval($_GET["pet"]);
 }
-else {
-    $user = 108;
-}
 
 
 // ruturns distance run on a specfied route by a specified pet
@@ -69,11 +66,6 @@ function sum_distance_all($dbc,$run,$routeLength)
     return $a;
 }
 
-
-
-
-
-
 // fetch route length from database
 function route_length($dbc,$run)
 {
@@ -112,16 +104,20 @@ $lapDistance = $lapFraction * $routeLength;
 
 
 
-// is this used????
-function splines($dbc, $run, $lapDistance)
+// 
+function main($dbc, $run, $lapDistance, $user)
 {
+    
+    // query the route coordinates and push to an array    
+    $routeArray = array([],[],[]);
+    
     $q = 'SELECT lat, lng, distance
     FROM routes 
     WHERE routeID=' . $run;
 
     $r = mysqli_query($dbc,$q);
     $toggle = 1;
-    $routeArray = array([],[],[]);
+    
     
     if($r)
     {
@@ -135,13 +131,15 @@ function splines($dbc, $run, $lapDistance)
     else {echo '<p>'.mysqli_error($dbc).'</p>';
     }
 
+
+    // query current lap distance for each pet and pushto an array
     $runDistArray = array([],[]);
 
     $q = 'SELECT readings.wheel, MOD(SUM(readings.distance),runs.distance) as 
-    runDist FROM readings, runs WHERE readings.run = '.$run.' AND readings.run = runs.id GROUP BY wheel';
-  
+    runDist FROM readings, runs WHERE readings.run = '.$run.' AND readings.run = runs.id GROUP BY wheel ORDER BY wheel';
+    
     $r = mysqli_query($dbc,$q);
-
+    
     if($r)
     {
         while($row = mysqli_fetch_array($r, MYSQLI_ASSOC))
@@ -152,27 +150,31 @@ function splines($dbc, $run, $lapDistance)
     }
     else {echo '<p>'.mysqli_error($dbc).'</p>';
     }
+    
+    // query which pets are currently on the selected run and push to an array
+    $petsOnRun = array([],[],[]);
+    
 
-
-    $petsOnRun = array([]);
-
-
-    $q = 'SELECT wheel FROM wheels WHERE run = '.$run;
-  
+    $q = 'SELECT wheels.wheel, animals.name, animals.breed FROM wheels, animals 
+    WHERE wheels.wheel = animals.wheel AND wheels.run = '.$run;
+    
+    
     $r = mysqli_query($dbc,$q);
-
+    
     if($r)
     {
         while($row = mysqli_fetch_array($r, MYSQLI_ASSOC))
         {
             array_push($petsOnRun[0],$row["wheel"]);
+            array_push($petsOnRun[1],$row["name"]);
+            array_push($petsOnRun[2],$row["breed"]);
         }
     }
     else {echo '<p>'.mysqli_error($dbc).'</p>';
     }
 
 
-
+    // splines showing completed and incompleted stages on the active run
     for ($x = 0; $x < count($routeArray[0]); $x++) {
         if($routeArray[0][$x]<$lapDistance){
             echo "<points1 lat=\"" .$routeArray[1][$x]. "\" lng=\"" .$routeArray[2][$x]. "\"/>";
@@ -182,25 +184,13 @@ function splines($dbc, $run, $lapDistance)
             $p1_lng = $routeArray[2][$x-1];
             $p3_lat = $routeArray[1][$x];
             $p3_lng = $routeArray[2][$x];
-            // $deltaLat = $p3_lat - $p1_lat;
-            // $deltaLng = $p3_lng - $p1_lng;
-            // $p1p2DeltaDist = $routeArray[0][$x]-$routeArray[0][$x-1];
-            // $p1pxDeltaDist = $lapDistance-$routeArray[0][$x-1];
-            // if($p1pxDeltaDist>0){
-                // $factor = $p1pxDeltaDist / $p1p2DeltaDist;
             $factor = distFactor($routeArray[0][$x-1],$lapDistance,$routeArray[0][$x]);
             $p2_lat = round($p1_lat + $factor * ($p3_lat - $p1_lat),4);
             $p2_lng = round($p1_lng + $factor * ($p3_lng - $p1_lng),4);
 
-            // echo "<points1 lat=\"" .round(($routeArray[1][$x-1] + $deltaLat*$factor),4). "\" lng=\"" .round(($routeArray[2][$x-1] + $deltaLng*$factor),4). "\"/>";
-            // echo "<points2 lat=\"" .round(($routeArray[1][$x-1] + $deltaLat*$factor),4). "\" lng=\"" .round(($routeArray[2][$x-1] + $deltaLng*$factor),4). "\"/>";
             echo "<points1 lat=\"" .$p2_lat. "\" lng=\"" .$p2_lng. "\"/>";
             echo "<points2 lat=\"" .$p2_lat. "\" lng=\"" .$p2_lng. "\"/>";
-             // }
-            // else{
-            //     echo "<points1 lat=\"" .$routeArray[1][$x]. "\" lng=\"" .$routeArray[2][$x]. "\"/>";
-            //     echo "<points2 lat=\"" .$routeArray[1][$x]. "\" lng=\"" .$routeArray[2][$x]. "\"/>";
-            // }
+
 
             $toggle = 0;
         }
@@ -210,10 +200,46 @@ function splines($dbc, $run, $lapDistance)
     }
 
 
+    // position of each pet currently on this run
     for ($x = 0; $x < count($petsOnRun[0]); $x++) {
-        $lapDistance = $runDistArray[1];
-    }
+        $u = array_search($petsOnRun[0][$x],$runDistArray[0],true);
+        $lapDistance = $runDistArray[1][$u];
+        $y = 0;
+    
+        while($routeArray[0][$y] <= $lapDistance) {
+            $y++;
+        }
 
+    
+        $p1_lat = $routeArray[1][$y-1];
+        $p1_lng = $routeArray[2][$y-1];
+        $p3_lat = $routeArray[1][$y];
+        $p3_lng = $routeArray[2][$y];
+    
+        $factor = distFactor($routeArray[0][$y-1],$lapDistance,$routeArray[0][$y]);
+        $p2_lat = round($p1_lat + $factor * ($p3_lat - $p1_lat),4);
+        $p2_lng = round($p1_lng + $factor * ($p3_lng - $p1_lng),4);
+        echo "<markerG username=\"" .$petsOnRun[1][$x]. "\" breed=\"" .$petsOnRun[2][$x]. "\" lat=\"" .$p2_lat. "\" lng=\"" .$p2_lng. "\"/>";
+    }
+    
+    // position of selected pet
+    $u = array_search(strval($user),$runDistArray[0],true);
+    $lapDistance = $runDistArray[1][$u];
+    $y = 0;
+
+    while($routeArray[0][$y] <= $lapDistance) {
+        $y++;
+    }
+    
+    $p1_lat = $routeArray[1][$y-1];
+    $p1_lng = $routeArray[2][$y-1];
+    $p3_lat = $routeArray[1][$y];
+    $p3_lng = $routeArray[2][$y];
+
+    $factor = distFactor($routeArray[0][$y-1],$lapDistance,$routeArray[0][$y]);
+    $p2_lat = round($p1_lat + $factor * ($p3_lat - $p1_lat),4);
+    $p2_lng = round($p1_lng + $factor * ($p3_lng - $p1_lng),4);
+    echo "<marker lat=\"" .$p2_lat. "\" lng=\"" .$p2_lng. "\"/>";
 
 
 }
@@ -228,71 +254,9 @@ function distFactor($dist1,$dist2,$dist3){
     
 }
 
+main($dbc,$run,$lapDistance,$user);
 
-
-
-
-function marker($dbc, $run, $lapDistance){
-    
-    $q = 'SELECT lat, lng
-    FROM routes 
-    WHERE routeID=' . $run . ' AND distance > ' . $lapDistance .' ORDER BY id LIMIT 1';
-
-    $r = mysqli_query($dbc,$q);
-    
-    if($r)
-    {
-        while($row = mysqli_fetch_array($r, MYSQLI_ASSOC))
-        {
-            echo "<marker lat=\"" .$row["lat"]. "\" lng=\"" . $row["lng"] . "\"/>";
-        }
-    }
-    else {echo '<p>'.mysqli_error($dbc).'</p>';
-    }
-}
-
-
-
-
-
-
-
-
-
-splines($dbc,$run,$lapDistance);
-
-
-function markers($dbc, $run, $distanceAll){
-    
-    for ($x = 0; $x < count($distanceAll[0]); $x++) {
-
-        if(intval($distanceAll[3][$x])==$run){
-            $q = 'SELECT lat, lng
-            FROM routes 
-            WHERE routeID=' . $run . ' AND distance > ' . $distanceAll[0][$x] .' ORDER BY id LIMIT 1';
-        
-            $r = mysqli_query($dbc,$q);
-            
-            if($r)
-            {
-                while($row = mysqli_fetch_array($r, MYSQLI_ASSOC))
-                {
-                    echo "<markerG username=\"" .$distanceAll[1][$x]. "\" breed=\"" .$distanceAll[2][$x]. "\" lat=\"" .$row["lat"]. "\" lng=\"" . $row["lng"] . "\"/>";
-                }
-            }
-            else {echo '<p>'.mysqli_error($dbc).'</p>';
-            }
-        }
-    }
-}
-
-
-
-
-marker($dbc, $run, $lapDistance); // selected pet marker
-markers($dbc, $run, $distanceAll);
-
-// query map type
+// query and set map style
 
 function mapType($dbc, $run){
 

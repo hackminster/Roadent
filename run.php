@@ -356,8 +356,8 @@
             var xml = data.responseXML;
             var points1 = xml.documentElement.getElementsByTagName('points1');
             var points2 = xml.documentElement.getElementsByTagName('points2');
-            var marker = xml.documentElement.getElementsByTagName('marker');
             var markerG = xml.documentElement.getElementsByTagName('markerG');
+            var marker = xml.documentElement.getElementsByTagName('marker');
             var mapStyle = xml.documentElement.getElementsByTagName('mapType');
 
             // create bounds object for fit viewport to bounds of route
