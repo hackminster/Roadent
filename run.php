@@ -480,7 +480,7 @@
 </script>
 
 <script async defer
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDp05-2tN-FgpIykiE26bK45NkTFAzqF3I&libraries=visualization&callback=initMap">
+    src="">
 </script>
 
 
