@@ -4,7 +4,7 @@
 	$dt = $_POST["datetime"];
 	$dist = intval($_POST['distance']);
 	$wheel = intval($_POST["wheel"]);
-	$speed = ($_POST["speed"]);
+	$speed = floatval($_POST["speed"]);
 
 	// echo inputs
 	echo "Data recieved: wheel: " .$wheel. ", distance: " .$dist. ", speed:" .$speed. ", datetime: " . date("Y-m-d H:i:s",$dt);
