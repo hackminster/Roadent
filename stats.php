@@ -11,13 +11,13 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 
-<?php // update session variable if new pet selected
+<?php // update session variable if new wheel selected
 
     session_start();
 
-    if ( isset ( $_GET['pet']))
+    if ( isset ( $_GET['wheel']))
     {
-         $_SESSION['pet'] = $_GET['pet'];
+         $_SESSION['pet'] = $_GET['wheel'];
 
     }
 
@@ -61,26 +61,26 @@
     <div class="row">
         <div class="col-sm-4"></div>
         <div class="col-sm-4">
-            <!-- form for selecting pet -->
-            <form id="pet" align="center">
+            <!-- form for selecting pet(s) -->
+            <form id="wheel" align="center">
 
-                <select class="form-control" name="pet" onchange="this.form.submit()">
+                <select class="form-control" name="wheel" onchange="this.form.submit()">
 
                     <option value="" disabled selected>-- select pet --</option>
 
                     <?php
 
-                        $pet = 0;
+                        $wheel = 0;
 
                         if(isset($_SESSION['pet'])){
-                            $pet=$_SESSION['pet'];
+                            $wheel=$_SESSION['pet'];
                         }
 
                         // database login
                         require ('../connect_db.php');
 
                         // query pet names from database and create selection list
-                        function petList($dbc,$pet)
+                        function petList($dbc,$wheel)
                         {
                             $q = 'SELECT wheel, name FROM animals';
                             $r = mysqli_query($dbc,$q);
@@ -90,7 +90,7 @@
                                 while($row = mysqli_fetch_array($r, MYSQLI_ASSOC))
                                 
                                 {
-                                if($row["wheel"]==$pet)
+                                if($row["wheel"]==$wheel)
                                 {
                                     $select = "selected";
                                 }
@@ -106,7 +106,7 @@
                             }
                         }
 
-                        petList($dbc,$pet);
+                        petList($dbc,$wheel);
 
                     ?>
 
@@ -150,13 +150,13 @@
 
                 <?php
                     if(isset($_SESSION["pet"])){
-                        $pet=$_SESSION["pet"];
-                        echo "var pet = ".$pet;
+                        $wheel=$_SESSION["pet"];
+                        echo "var wheel = ".$wheel;
                     }
                 ?>
 
                 // download xml file
-                downloadUrl('chartXML.php?pet='+pet, function(data) {
+                downloadUrl('chartXML.php?pet='+wheel, function(data) {
                     
                     // create data objects from XML file
                     var xml = data.responseXML;
@@ -375,12 +375,12 @@
 
 
                     
-                    // query max speed for pet
+                    // query max speed for wheel
                     <?php
 
-                        function speed24hrMax($dbc,$pet)
+                        function speed24hrMax($dbc,$wheel)
                         {
-                            $q = 'SELECT MAX(speed) AS speed24hrMax FROM readings WHERE wheel = '.$pet.
+                            $q = 'SELECT MAX(speed) AS speed24hrMax FROM readings WHERE wheel = '.$wheel.
                             // ' AND hourDate BETWEEN \'2019-11-05 21:00:00\' AND \'2019-11-06 00:00:00\'';
                             ' AND hourDate BETWEEN \''.date("Y\-m\-d H\:i\:s",time()-3600*24).'\' AND \''.date("Y\-m\-d H\:i\:s",time()).'\'';
 
@@ -396,14 +396,14 @@
                             else {echo '<p>'.mysqli_error($dbc).'</p>';
                             }
                         }
-                        speed24hrMax($dbc,$pet);
+                        speed24hrMax($dbc,$wheel);
                     ?>
 
                     <?php
 
-                        function speedRecord($dbc,$pet)
+                        function speedRecord($dbc,$wheel)
                         {
-                            $q = 'SELECT MAX(speed) AS speedRecord FROM readings WHERE wheel = '.$pet;
+                            $q = 'SELECT MAX(speed) AS speedRecord FROM readings WHERE wheel = '.$wheel;
                             $r = mysqli_query($dbc,$q);
 
                             if($r)
@@ -418,7 +418,7 @@
                             }
                         };
 
-                        speedRecord($dbc,$pet);
+                        speedRecord($dbc,$wheel);
 
                     ?>
 

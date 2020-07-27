@@ -107,9 +107,23 @@
     <div class="col-sm-4">
         <h3>Rodent Fitness App</h3>        
         <p>
-            Naturally the next step is to develop a fitness app for Snuggles and Gingy, and any whiskered friends that wish to join them. 
-            This wacky idea is currently in development. Return soon to check for updates!
+        Naturally the next step is to develop a fitness app for Snuggles and Gingy, and any whiskered friends that wish to join them. 
+            This wacky idea is currently in development.
         </p>
+        <span class="label label-success">New!</span>
+        <p></p>
+        <p>
+            Beta pages are now live, with 20 cyber rodents posting data every hour. Use the above navbar to see leaderboards, run maps and stats.
+        </p>
+        
+        <h3>3D Printed Prototype Product</h3>
+
+        <img src="images/Prototype1.jpg" class="img-rounded" alt="set-up" style="width:100%">  
+        <p></p>
+        <span class="label label-success">New!</span>
+        <p></p>      
+        <p>Gingy & Snuggles are the only real pets posting data and this has to change! Pictured above is the first attempt to create a plug and
+             play product that will enable other fury creatures to join the madness.  </p>
     </div>
 
   </div>

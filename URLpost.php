@@ -51,5 +51,7 @@
 		echo 'db error:'.mysqli_error($dbc);
 	}
 
+	mysqli_close($dbc);
+
 ?>
 

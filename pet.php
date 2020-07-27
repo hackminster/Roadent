@@ -122,49 +122,88 @@
     <div class="col-sm-6">
 
 
-            <table class="table">
+            <table class="table table-striped">
                 <thead>
                     <tr>
-                    <th>Data</th>
+                    <th>Data</th><th></th><th></th>
                     </tr>
                 </thead>
                 <tbody>
                 <?php
             
                     $petB = 0;
+                    $breed = "";
+                    $wheel = "";
+                    $country = "";
+                    $maxSpeed = 0;
 
                     if ( isset ( $_GET['petB'])){
                         $petB=$_GET['petB'];
                     }    
                     
                     function petData($dbc,$petB)
-                                        {
+                    {
+                        global $breed,$country,$wheel;
+                        $q = 'SELECT * FROM animals WHERE id ='.$petB;
 
-                                            $q = 'SELECT * FROM animals WHERE id ='.$petB;
+
+                        $r = mysqli_query($dbc,$q);
+                    
+                        if($r)
+                        {
+                            $row = mysqli_fetch_array($r, MYSQLI_ASSOC);
+                            
+                            $breed = $row["breed"];
+                            $wheel = $row["wheel"];
+                            $country = $row["country"];
+                            
+                        }
+                        else {echo '<p>'.mysqli_error($dbc).'</p>';
+                        }
+
+                    }
+
+                    function petPerformance($dbc,$wheel)
+                    {
+                        global $maxSpeed;
+                        $q = 'SELECT MAX(speed) AS maxSpeed FROM readings WHERE wheel = '.$wheel;
+
+                        $r = mysqli_query($dbc,$q);
+                    
+                        if($r)
+                        {
+                            $row = mysqli_fetch_array($r, MYSQLI_ASSOC);
+                            
+                            $maxSpeed = $row["maxSpeed"];
+                           
+                        }
+                        else {echo '<p>'.mysqli_error($dbc).'</p>';
+                        }
+
+                    }
+
+                    petData($dbc,$petB);
+
+                    // petPerformance($dbc,$wheel);
+
+                    $icon = array("gerbil"=>"gerbilIcon", "hamster"=>"hamsterIcon", "dwarf hamster"=>"dwarfHamsterIcon", "rat"=>"ratIcon");
+
+                    echo "<tr><td>Breed</td><td>".ucwords($breed)."</td>
+                    <td> <img src=\"images/".$icon[$breed].".png\" height=\"20\" width=\"35\" ></td></tr>";
+                    echo "<tr><td>Home Country</td><td>".$country."</td>
+                    <td> <img src=\"flags/".strtolower($country).".png\" height=\"20\" width=\"20\" ></td></tr>";
+                    echo "<tr><td>Cagemates</td><td>x</td><td>x</td></tr>";
+                    echo "<tr><td>Date of Birth</td><td>x</td><td>x</td></tr>";
+                    echo "<tr><td>Star Sign</td><td>Taurus</td>
+                    <td> <img src=\"starSigns/007-taurus.png\" height=\"20\" width=\"20\" ></td></tr>";
+                    echo "<tr><td>Gender</td><td>x</td><td>x</td></tr>";
+                    echo "<tr><td>Total Distance</td><td>x</td><td>x</td></tr>";
+                    echo "<tr><td>Max Speed</td><td>".$maxSpeed."</td><td>x</td></tr>";
+                    echo "<tr><td>Wheel #</td><td>".$wheel."</td><td></td></tr>";
 
 
-                                            $r = mysqli_query($dbc,$q);
+
                                         
-                                            if($r)
-                                            {
-                                                $row = mysqli_fetch_array($r, MYSQLI_ASSOC);
-                                                
-                                                echo "<tr><td>Breed</td><td>".$row["breed"]."</td><td></td></tr>";
-                                                echo "<tr><td>Home Country</td><td>".$row["country"]."</td>
-                                                <td> <img src=\"flags/".strtolower($row["country"]).".png\" height=\"20\" width=\"20\" ></td></tr>";
-                                                echo "<tr><td>Teammates</td><td>x</td><td>x</td></tr>";
-                                                echo "<tr><td>Date of Birth</td><td>x</td><td>x</td></tr>";
-                                                echo "<tr><td>Star Sign</td><td>x</td><td>x</td></tr>";
-                                                echo "<tr><td>Total Distance</td><td>x</td><td>x</td></tr>";
-                                                echo "<tr><td>Max Speed</td><td>x</td><td>x</td></tr>";
-                                                echo "<tr><td>Wheel #</td><td>".$row["wheel"]."</td><td></td></tr>";    
-                                                
-                                            }
-                                            else {echo '<p>'.mysqli_error($dbc).'</p>';
-                                            }
-                                        }
-
-                                        petData($dbc,$petB);
 
                 ?>
                 
@@ -190,7 +229,7 @@
 
 
 
-        <!-- <img src="portraits/22.jpg" class="img-thumbnail" alt="portrait"> -->
+
     </div>
 
 
