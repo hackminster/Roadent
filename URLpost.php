@@ -12,6 +12,8 @@
 	// datebase connection details
 	require ('../connect_db.php');
 
+	date_default_timezone_set('Europe/London'); 
+
 	// convert datetime from int from epoc to string for mySQL
 	$hourDate = '\''.date("Y-m-d H:i:s",$dt).'\'';
 

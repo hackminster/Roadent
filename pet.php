@@ -133,9 +133,16 @@
             
                     $petB = 0;
                     $breed = "";
+                    $genderCode = 0;
+                    $gender = "";
                     $wheel = "";
                     $country = "";
                     $maxSpeed = 0;
+                    $totalDistance = 0;
+                    $cagematesSum = 0;
+                    $cagemates = "";
+                    $star = "";
+                    $dob = "";
 
                     if ( isset ( $_GET['petB'])){
                         $petB=$_GET['petB'];
@@ -143,7 +150,7 @@
                     
                     function petData($dbc,$petB)
                     {
-                        global $breed,$country,$wheel;
+                        global $breed,$country,$genderCode,$star,$wheel,$dob;
                         $q = 'SELECT * FROM animals WHERE id ='.$petB;
 
 
@@ -154,19 +161,75 @@
                             $row = mysqli_fetch_array($r, MYSQLI_ASSOC);
                             
                             $breed = $row["breed"];
-                            $wheel = $row["wheel"];
+                            $dob = $row["dob"];
                             $country = $row["country"];
-                            
+                            $genderCode = $row["gender"];
+                            $star = $row["star"];
+                            $wheel = $row["wheel"];
+
                         }
                         else {echo '<p>'.mysqli_error($dbc).'</p>';
                         }
 
                     }
 
-                    function petPerformance($dbc,$wheel)
+
+                    function countCagemates($dbc,$wheel)
                     {
-                        global $maxSpeed;
-                        $q = 'SELECT MAX(speed) AS maxSpeed FROM readings WHERE wheel = '.$wheel;
+                        global $cagematesSum;
+                        $q = 'SELECT COUNT(name) AS cagematesSum FROM animals WHERE wheel = '.$wheel;
+
+                        $r = mysqli_query($dbc,$q);
+                    
+                        if($r)
+                        {
+                            $row = mysqli_fetch_array($r, MYSQLI_ASSOC);
+                            
+                            $cagematesSum = $row["cagematesSum"];
+                           
+                        }
+                        else {echo '<p>'.mysqli_error($dbc).'</p>';
+                        }
+
+                    }
+
+
+                    function cagemates($dbc,$wheel,$petB)
+                    {
+                        global $cagemate, $cagematesSum;
+                        $q = 'SELECT name FROM animals WHERE wheel ='.$wheel.' AND NOT id = '.$petB;
+                       
+                        $r = mysqli_query($dbc,$q);
+                        
+                        $comma = 0;
+
+                        if($r)
+                        {   
+                            while($row = mysqli_fetch_array($r, MYSQLI_ASSOC)){
+                                if ($comma == 0){
+                                    $comma = 1;
+                                } else {
+                                    $cagemate .= ", ";
+                                }
+                                $cagemate .= $row["name"];
+                                $cagematesSum = $cagematesSum + 1;
+
+
+                            }
+                           
+                        }
+                        else {echo '<p>'.mysqli_error($dbc).'</p>';
+                        }
+
+                    }
+
+                    
+
+
+                    function petPerformance($dbc,$wheel,$cagematesSum)
+                    {
+                        global $maxSpeed, $totalDistance;
+                        $q = 'SELECT MAX(speed) AS maxSpeed, SUM(distance) AS totalDistance FROM readings WHERE wheel = '.$wheel;
 
                         $r = mysqli_query($dbc,$q);
                     
@@ -175,6 +238,7 @@
                             $row = mysqli_fetch_array($r, MYSQLI_ASSOC);
                             
                             $maxSpeed = $row["maxSpeed"];
+                            $totalDistance = $row["totalDistance"]/($cagematesSum+1);
                            
                         }
                         else {echo '<p>'.mysqli_error($dbc).'</p>';
@@ -182,24 +246,43 @@
 
                     }
 
+
                     petData($dbc,$petB);
 
-                    // petPerformance($dbc,$wheel);
+                    
+                    // countCagemates($dbc,$wheel);
+
+
+                    petPerformance($dbc,$wheel,$cagematesSum);
+
+                    cagemates($dbc,$wheel,$petB);
+
+                    if($genderCode==0){
+                        $gender = "Girl";
+                    } else {
+                        $gender = "Boy";
+                    }
+
+
+                    $phpdate = strtotime( $dob );
 
                     $icon = array("gerbil"=>"gerbilIcon", "hamster"=>"hamsterIcon", "dwarf hamster"=>"dwarfHamsterIcon", "rat"=>"ratIcon");
+                    
+                    if ( isset ( $_GET['petB'])){
+                        echo "<tr><td>Breed</td><td>".ucwords($breed)."</td>
+                        <td> <img src=\"images/".$icon[$breed].".png\" height=\"20\" width=\"35\" ></td></tr>";
+                        echo "<tr><td>Home Country</td><td>".$country."</td>
+                        <td> <img src=\"flags/".strtolower($country).".png\" height=\"20\" width=\"20\" ></td></tr>";
+                        echo "<tr><td>Cagemates</td><td>".$cagematesSum."</td><td>".$cagemate."</td></tr>";
+                        echo "<tr><td>Date of Birth</td><td>".date("jS \of F Y",$phpdate)."</td><td>".date("\(l\)",$phpdate)."</td></tr>";
+                        echo "<tr><td>Star Sign</td><td>".$star."</td>
+                        <td> <img src=\"starSigns/".strtolower($star).".png\" height=\"20\" width=\"20\" ></td></tr>";
+                        echo "<tr><td>Gender</td><td>".$gender."</td><td></td></tr>";
+                        echo "<tr><td>Total Distance</td><td>".round($totalDistance)."m</td><td></td></tr>";
+                        echo "<tr><td>Max Speed</td><td>".$maxSpeed."mph</td><td></td></tr>";
+                        echo "<tr><td>Wheel #</td><td>".$wheel."</td><td></td></tr>";
+                    }
 
-                    echo "<tr><td>Breed</td><td>".ucwords($breed)."</td>
-                    <td> <img src=\"images/".$icon[$breed].".png\" height=\"20\" width=\"35\" ></td></tr>";
-                    echo "<tr><td>Home Country</td><td>".$country."</td>
-                    <td> <img src=\"flags/".strtolower($country).".png\" height=\"20\" width=\"20\" ></td></tr>";
-                    echo "<tr><td>Cagemates</td><td>x</td><td>x</td></tr>";
-                    echo "<tr><td>Date of Birth</td><td>x</td><td>x</td></tr>";
-                    echo "<tr><td>Star Sign</td><td>Taurus</td>
-                    <td> <img src=\"starSigns/007-taurus.png\" height=\"20\" width=\"20\" ></td></tr>";
-                    echo "<tr><td>Gender</td><td>x</td><td>x</td></tr>";
-                    echo "<tr><td>Total Distance</td><td>x</td><td>x</td></tr>";
-                    echo "<tr><td>Max Speed</td><td>".$maxSpeed."</td><td>x</td></tr>";
-                    echo "<tr><td>Wheel #</td><td>".$wheel."</td><td></td></tr>";
 
 
 
