@@ -17,7 +17,7 @@
 
     if ( isset ( $_GET['wheel']))
     {
-         $_SESSION['pet'] = $_GET['wheel'];
+         $_SESSION['wheel'] = $_GET['wheel'];
 
     }
 
@@ -32,12 +32,13 @@
             <li><a href="index.php">Home</a></li>
             <li><a href="leaderboard.php">Leaderboard</a></li>
             <li><a href="run.php<?php
-                if ( isset ( $_SESSION['pet']))
+                if ( isset ( $_SESSION['wheel']))
                 {
-                    echo "?pet=".$_SESSION['pet'];
+                    echo "?wheel=".$_SESSION['wheel'];
                 }            
             ?>">Run</a></li>
             <li class="active"><a href="stats.php">Stats</a></li>
+            <li><a href="pet.php">Pet Profiles</a></li>
 
         </ul>
         <ul class="nav navbar-nav navbar-right">
@@ -72,8 +73,8 @@
 
                         $wheel = 0;
 
-                        if(isset($_SESSION['pet'])){
-                            $wheel=$_SESSION['pet'];
+                        if(isset($_SESSION['wheel'])){
+                            $wheel=$_SESSION['wheel'];
                         }
 
                         // database login
@@ -82,7 +83,7 @@
                         // query pet names from database and create selection list
                         function petList($dbc,$wheel)
                         {
-                            $q = 'SELECT wheel, name FROM animals';
+                            $q = 'SELECT wheel, teamName FROM wheels';
                             $r = mysqli_query($dbc,$q);
                         
                             if($r)
@@ -99,7 +100,7 @@
                                     $select = "";
                                 }
                                     echo "<option value=" .$row["wheel"]. " " .$select.
-                                    ">" . $row["name"] . "</option>"; 
+                                    ">" . $row["teamName"] . "</option>"; 
                                 }
                             }
                             else {echo '<p>'.mysqli_error($dbc).'</p>';
@@ -149,8 +150,8 @@
 
 
                 <?php
-                    if(isset($_SESSION["pet"])){
-                        $wheel=$_SESSION["pet"];
+                    if(isset($_SESSION["wheel"])){
+                        $wheel=$_SESSION["wheel"];
                         echo "var wheel = ".$wheel;
                     }
                 ?>

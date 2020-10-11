@@ -20,9 +20,9 @@
 
     session_start();
 
-    if ( isset ( $_GET['pet']))
+    if ( isset ( $_GET['wheel']))
     {
-         $_SESSION['pet'] = $_GET['pet'];
+         $_SESSION['wheel'] = $_GET['wheel'];
     }
 
 ?>
@@ -36,8 +36,9 @@
         <ul class="nav navbar-nav">
             <li><a href="index.php">Home</a></li>
             <li><a href="leaderboard.php">Leaderboard</a></li>
-            <li class="run"><a href="run.php">Run</a></li>
+            <li class="active"><a href="run.php">Run</a></li>
             <li><a href="stats.php">Stats</a></li>
+            <li><a href="pet.php">Pet Profiles</a></li>
         </ul>
         <ul class="nav navbar-nav navbar-right">
             <li class="nav-item">
@@ -62,7 +63,7 @@
 
                 <!-- Selected pet: -->
 
-                <select class="form-control" name="pet" onchange="this.form.submit()">
+                <select class="form-control" name="wheel" onchange="this.form.submit()">
 
                     <option value="" disabled selected>-- select pet --</option>
 
@@ -70,8 +71,8 @@
 
                         $pet = 0;
 
-                        if(isset($_SESSION['pet'])){
-                            $pet=$_SESSION['pet'];
+                        if(isset($_SESSION['wheel'])){
+                            $pet=$_SESSION['wheel'];
                         }
 
                         // database login
@@ -80,7 +81,7 @@
                         // query pet names from database and create selection list
                         function petList($dbc,$pet)
                         {
-                            $q = 'SELECT wheel, name FROM animals';
+                            $q = 'SELECT wheel, teamName FROM wheels';
                             $r = mysqli_query($dbc,$q);
                         
                             if($r)
@@ -97,7 +98,7 @@
                                     $select = "";
                                 }
                                     echo "<option value=" .$row["wheel"]. " " .$select.
-                                    ">" . $row["name"] . "</option>"; 
+                                    ">" . $row["teamName"] . "</option>"; 
                                 }
                             }
                             else {echo '<p>'.mysqli_error($dbc).'</p>';
@@ -120,8 +121,8 @@
 
                     <?php
 
-                    if(isset($_GET["pet"])){
-                        $pet=$_GET["pet"];
+                    if(isset($_GET["wheel"])){
+                        $pet=$_GET["wheel"];
                     }
 
 
@@ -184,9 +185,9 @@
 <?php
 
 
-    if ( isset ( $_SESSION['pet']))
+    if ( isset ( $_SESSION['wheel']))
     {
-        $pet = $_SESSION['pet'];
+        $pet = $_SESSION['wheel'];
     }
 
 ?>
@@ -205,8 +206,8 @@
 <body 
     
     <?php
-    if(isset($_SESSION["pet"])){
-        $pet=$_SESSION["pet"];
+    if(isset($_SESSION["wheel"])){
+        $pet=$_SESSION["wheel"];
         require ('../connect_db.php');
         $q = 'SELECT run FROM wheels WHERE wheel ='.$pet;
         $r = mysqli_query($dbc,$q);
@@ -261,8 +262,8 @@
 
                 <?php
 
-                if(isset($_SESSION["pet"])){
-                    $wheel=$_SESSION["pet"];
+                if(isset($_SESSION["wheel"])){
+                    $wheel=$_SESSION["wheel"];
                     
 
                     // database login
@@ -311,8 +312,8 @@
     function loadDoc(xy) {
 
         <?php
-        if(isset($_GET["pet"])){
-            $pet=$_GET["pet"];
+        if(isset($_GET["wheel"])){
+            $pet=$_GET["wheel"];
         }
         echo "var wheel = ".$pet;
         ?>
@@ -345,8 +346,8 @@
         
         var run = g;
         <?php
-        if(isset($_GET["pet"])){
-            $pet=$_GET["pet"];
+        if(isset($_GET["wheel"])){
+            $pet=$_GET["wheel"];
             echo "var pet = ".$pet;
         }
         ?>

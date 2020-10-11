@@ -22,12 +22,13 @@
             <li><a href="index.php">Home</a></li>
             <li><a href="leaderboard.php">Leaderboard</a></li>
             <li><a href="run.php<?php
-                if ( isset ( $_SESSION['pet']))
+                if ( isset ( $_SESSION['wheel']))
                 {
-                    echo "?pet=".$_SESSION['pet'];
+                    echo "?wheel=".$_SESSION['wheel'];
                 }            
             ?>">Run</a></li>
-            <li class="active"><a href="stats.php">Stats</a></li>
+            <li><a href="stats.php">Stats</a></li>
+            <li class="active"><a href="pet.php">Pet Profiles</a></li>
 
         </ul>
         <ul class="nav navbar-nav navbar-right">
@@ -52,26 +53,26 @@
         <div class="col-sm-4"></div>
         <div class="col-sm-4">
             <!-- form for selecting pet -->
-            <form id="petB" align="center">
+            <form id="pet" align="center">
 
-                <select class="form-control" name="petB" onchange="this.form.submit()">
+                <select class="form-control" name="pet" onchange="this.form.submit()">
 
                     <option value="" disabled selected>-- select pet --</option>
 
                     <?php
 
-                        $petB = 0;
+                        $pet = 0;
 
 
-                        if ( isset ( $_GET['petB'])){
-                            $petB=$_GET['petB'];
+                        if ( isset ( $_GET['pet'])){
+                            $pet=$_GET['pet'];
                         }
 
                         // database login
                         require ('../connect_db.php');
 
                         // query pet names from database and create selection list
-                        function petList($dbc,$petB)
+                        function petList($dbc,$pet)
                         {
 
 
@@ -85,8 +86,8 @@
                                 while($row = mysqli_fetch_array($r, MYSQLI_ASSOC))
                                 
                                 {
-                                    // if($row["id"]==intval($petB))
-                                    if($row["id"]==$petB)
+                                    // if($row["id"]==intval($pet))
+                                    if($row["id"]==$pet)
                                     {
                                         $select = "selected";
                                     }
@@ -102,7 +103,7 @@
                             }
                         }
 
-                        petList($dbc,$petB);
+                        petList($dbc,$pet);
 
                     ?>
 
@@ -121,141 +122,109 @@
 <div class="container">
     <div class="col-sm-6">
 
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                <th>Data</th><th></th><th></th>
+                </tr>
+            </thead>
+            <tbody>
+            <?php
+        
+                $pet = 0;
+                $breed = "";
+                $genderCode = 0;
+                $gender = "";
+                $wheel = "";
+                $country = "";
+                $maxSpeed = 0;
+                $totalDistance = 0;
+                $cagematesSum = 0;
+                $cagemates = "";
+                $star = "";
+                $dob = "";
+         
+                function petData($dbc,$pet)
+                {
+                    global $breed,$country,$genderCode,$star,$wheel,$dob;
+                    $q = 'SELECT wheels.breed, animals.dob, wheels.country, animals.gender, animals.star, wheels.wheel 
+                    FROM wheels, animals WHERE animals.wheel=wheels.wheel AND animals.id ='.$pet;
 
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                    <th>Data</th><th></th><th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                <?php
-            
-                    $petB = 0;
-                    $breed = "";
-                    $genderCode = 0;
-                    $gender = "";
-                    $wheel = "";
-                    $country = "";
-                    $maxSpeed = 0;
-                    $totalDistance = 0;
-                    $cagematesSum = 0;
-                    $cagemates = "";
-                    $star = "";
-                    $dob = "";
-
-                    if ( isset ( $_GET['petB'])){
-                        $petB=$_GET['petB'];
-                    }    
-                    
-                    function petData($dbc,$petB)
+                    $r = mysqli_query($dbc,$q);
+                
+                    if($r)
                     {
-                        global $breed,$country,$genderCode,$star,$wheel,$dob;
-                        $q = 'SELECT * FROM animals WHERE id ='.$petB;
-
-
-                        $r = mysqli_query($dbc,$q);
-                    
-                        if($r)
-                        {
-                            $row = mysqli_fetch_array($r, MYSQLI_ASSOC);
-                            
-                            $breed = $row["breed"];
-                            $dob = $row["dob"];
-                            $country = $row["country"];
-                            $genderCode = $row["gender"];
-                            $star = $row["star"];
-                            $wheel = $row["wheel"];
-
-                        }
-                        else {echo '<p>'.mysqli_error($dbc).'</p>';
-                        }
-
-                    }
-
-
-                    function countCagemates($dbc,$wheel)
-                    {
-                        global $cagematesSum;
-                        $q = 'SELECT COUNT(name) AS cagematesSum FROM animals WHERE wheel = '.$wheel;
-
-                        $r = mysqli_query($dbc,$q);
-                    
-                        if($r)
-                        {
-                            $row = mysqli_fetch_array($r, MYSQLI_ASSOC);
-                            
-                            $cagematesSum = $row["cagematesSum"];
-                           
-                        }
-                        else {echo '<p>'.mysqli_error($dbc).'</p>';
-                        }
-
-                    }
-
-
-                    function cagemates($dbc,$wheel,$petB)
-                    {
-                        global $cagemate, $cagematesSum;
-                        $q = 'SELECT name FROM animals WHERE wheel ='.$wheel.' AND NOT id = '.$petB;
-                       
-                        $r = mysqli_query($dbc,$q);
+                        $row = mysqli_fetch_array($r, MYSQLI_ASSOC);
                         
-                        $comma = 0;
+                        $breed = $row["breed"];
+                        $dob = $row["dob"];
+                        $country = $row["country"];
+                        $genderCode = $row["gender"];
+                        $star = $row["star"];
+                        $wheel = $row["wheel"];
 
-                        if($r)
-                        {   
-                            while($row = mysqli_fetch_array($r, MYSQLI_ASSOC)){
-                                if ($comma == 0){
-                                    $comma = 1;
-                                } else {
-                                    $cagemate .= ", ";
-                                }
-                                $cagemate .= $row["name"];
-                                $cagematesSum = $cagematesSum + 1;
+                    }
+                    else {echo '<p>'.mysqli_error($dbc).'</p>';
+                    }
 
+                }
+                
+                function cagemates($dbc,$wheel,$pet)
+                {
+                    global $cagemate, $cagematesSum;
+                    $q = 'SELECT name FROM animals WHERE wheel ='.$wheel.' AND NOT id = '.$pet;
+                    
+                    $r = mysqli_query($dbc,$q);
+                    
+                    $comma = 0;
 
+                    if($r)
+                    {   
+                        while($row = mysqli_fetch_array($r, MYSQLI_ASSOC)){
+                            if ($comma == 0){
+                                $comma = 1;
+                            } else {
+                                $cagemate .= ", ";
                             }
-                           
-                        }
-                        else {echo '<p>'.mysqli_error($dbc).'</p>';
-                        }
+                            $cagemate .= $row["name"];
+                            $cagematesSum = $cagematesSum + 1;
 
+                        }
+                        
+                    }
+                    else {echo '<p>'.mysqli_error($dbc).'</p>';
                     }
 
-                    
+                }
 
+                function petPerformance($dbc,$wheel,$cagematesSum)
+                {
+                    global $maxSpeed, $totalDistance;
+                    $q = 'SELECT MAX(speed) AS maxSpeed, SUM(distance) AS totalDistance FROM readings WHERE wheel = '.$wheel;
 
-                    function petPerformance($dbc,$wheel,$cagematesSum)
+                    $r = mysqli_query($dbc,$q);
+                
+                    if($r)
                     {
-                        global $maxSpeed, $totalDistance;
-                        $q = 'SELECT MAX(speed) AS maxSpeed, SUM(distance) AS totalDistance FROM readings WHERE wheel = '.$wheel;
-
-                        $r = mysqli_query($dbc,$q);
-                    
-                        if($r)
-                        {
-                            $row = mysqli_fetch_array($r, MYSQLI_ASSOC);
-                            
-                            $maxSpeed = $row["maxSpeed"];
-                            $totalDistance = $row["totalDistance"]/($cagematesSum+1);
-                           
-                        }
-                        else {echo '<p>'.mysqli_error($dbc).'</p>';
-                        }
-
+                        $row = mysqli_fetch_array($r, MYSQLI_ASSOC);
+                        
+                        $maxSpeed = $row["maxSpeed"];
+                        $totalDistance = $row["totalDistance"]/($cagematesSum+1);
+                        
+                    }
+                    else {echo '<p>'.mysqli_error($dbc).'</p>';
                     }
 
+                }
 
-                    petData($dbc,$petB);
+                if ( isset ( $_GET['pet'])){
+                    $pet=$_GET['pet'];
 
-                    
-                    // countCagemates($dbc,$wheel);
-
+                    petData($dbc,$pet);
 
                     petPerformance($dbc,$wheel,$cagematesSum);
 
-                    cagemates($dbc,$wheel,$petB);
+                    cagemates($dbc,$wheel,$pet);
 
                     if($genderCode==0){
                         $gender = "Girl";
@@ -263,61 +232,45 @@
                         $gender = "Boy";
                     }
 
-
                     $phpdate = strtotime( $dob );
 
-                    $icon = array("gerbil"=>"gerbilIcon", "hamster"=>"hamsterIcon", "dwarf hamster"=>"dwarfHamsterIcon", "rat"=>"ratIcon");
                     
-                    if ( isset ( $_GET['petB'])){
-                        echo "<tr><td>Breed</td><td>".ucwords($breed)."</td>
-                        <td> <img src=\"images/".$icon[$breed].".png\" height=\"20\" width=\"35\" ></td></tr>";
-                        echo "<tr><td>Home Country</td><td>".$country."</td>
-                        <td> <img src=\"flags/".strtolower($country).".png\" height=\"20\" width=\"20\" ></td></tr>";
-                        echo "<tr><td>Cagemates</td><td>".$cagematesSum."</td><td>".$cagemate."</td></tr>";
-                        echo "<tr><td>Date of Birth</td><td>".date("jS \of F Y",$phpdate)."</td><td>".date("\(l\)",$phpdate)."</td></tr>";
-                        echo "<tr><td>Star Sign</td><td>".$star."</td>
-                        <td> <img src=\"starSigns/".strtolower($star).".png\" height=\"20\" width=\"20\" ></td></tr>";
-                        echo "<tr><td>Gender</td><td>".$gender."</td><td></td></tr>";
-                        echo "<tr><td>Total Distance</td><td>".round($totalDistance)."m</td><td></td></tr>";
-                        echo "<tr><td>Max Speed</td><td>".$maxSpeed."mph</td><td></td></tr>";
-                        echo "<tr><td>Wheel #</td><td>".$wheel."</td><td></td></tr>";
-                    }
-
-
-
-
-                                        
-
-                ?>
+                    $icon = array("gerbil"=>"gerbilIcon", "hamster"=>"hamsterIcon", "dwarf hamster"=>"dwarfHamsterIcon", "rat"=>"ratIcon");
                 
+                    echo "<tr><td>Breed</td><td>".ucwords($breed)."</td>
+                    <td> <img src=\"images/".$icon[$breed].".png\" height=\"20\" width=\"35\" ></td></tr>";
+                    echo "<tr><td>Home Country</td><td>".$country."</td>
+                    <td> <img src=\"flags/".strtolower($country).".png\" height=\"20\" width=\"20\" ></td></tr>";
+                    echo "<tr><td>Cagemates</td><td>".$cagematesSum."</td><td>".$cagemate."</td></tr>";
+                    echo "<tr><td>Date of Birth</td><td>".date("jS \of F Y",$phpdate)."</td><td>".date("\(l\)",$phpdate)."</td></tr>";
+                    echo "<tr><td>Star Sign</td><td>".$star."</td>
+                    <td> <img src=\"starSigns/".strtolower($star).".png\" height=\"20\" width=\"20\" ></td></tr>";
+                    echo "<tr><td>Gender</td><td>".$gender."</td><td></td></tr>";
+                    echo "<tr><td>Total Distance</td><td>".(round($totalDistance/100/($cagematesSum+1))/10)."km</td><td></td></tr>";
+                    echo "<tr><td>Max Speed</td><td>".$maxSpeed."mph</td><td></td></tr>";
+                    echo "<tr><td>Wheel #</td><td>".$wheel."</td><td></td></tr>";
 
-
-
-                </tbody>
-            </table>
+                }   
+            ?>
+     
+            </tbody>
+        </table>
     </div>
+
     <div class="col-sm-6">
-    
         <?php
 
-            $petB = 0;
+            $pet = 0;
 
-            if ( isset ( $_GET['petB'])){
-                $petB=$_GET['petB'];
+            if ( isset ( $_GET['pet'])){
+                $pet=$_GET['pet'];
+                echo "<img src=\"portraits/".$pet.".jpg\" class=\"img-thumbnail\" alt=\"portrait\">";
             }
 
-            echo "<img src=\"portraits/".$petB.".jpg\" class=\"img-thumbnail\" alt=\"portrait\">";
         ?>
-
-
-
-
-
     </div>
 
-
 </div>
-
 
 <div class="container">
     <p></p>
@@ -326,13 +279,6 @@
     <p class="text-center">This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License</a>.</p>
 </div>
 
-
-
-
-
-
-
-
-  </body>
+</body>
     
 

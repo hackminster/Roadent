@@ -24,12 +24,13 @@
             <li class="active"><a href="index.php">Home</a></li>
             <li><a href="leaderboard.php">Leaderboard</a></li>
             <li><a href="run.php<?php
-                if ( isset ( $_SESSION['pet']))
+                if ( isset ( $_SESSION['wheel']))
                 {
-                    echo "?pet=".$_SESSION['pet'];
+                    echo "?wheel=".$_SESSION['wheel'];
                 }            
             ?>">Run</a></li>
             <li><a href="stats.php">Stats</a></li>
+            <li><a href="pet.php">Pet Profiles</a></li>
 
         </ul>
         <ul class="nav navbar-nav navbar-right">

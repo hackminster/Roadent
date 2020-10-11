@@ -41,11 +41,11 @@ function sum_distance($dbc,$run,$user)
 // appears to create data for laps complete table
 function sum_distance_all($dbc,$run,$routeLength)
 {
-    $q = 'SELECT animals.wheel, animals.name, animals.breed,
+    $q = 'SELECT wheels.wheel, wheels.teamName, wheels.breed,
     SUM(readings.distance), wheels.run
-    FROM animals,readings,wheels
-    WHERE animals.wheel=readings.wheel AND animals.wheel=wheels.wheel AND readings.run = '.$run.'
-    GROUP BY animals.name
+    FROM readings,wheels
+    WHERE wheels.wheel=readings.wheel AND readings.run = '.$run.'
+    GROUP BY wheels.teamName
     ORDER BY SUM(readings.distance) DESC';
 
     $r = mysqli_query($dbc,$q);
@@ -56,7 +56,7 @@ function sum_distance_all($dbc,$run,$routeLength)
         while($row = mysqli_fetch_array($r, MYSQLI_ASSOC))
         {
             array_push($a[0],$row["SUM(readings.distance)"]%$routeLength);
-            array_push($a[1],$row["name"]);
+            array_push($a[1],$row["teamName"]);
             array_push($a[2],$row["breed"]);
             array_push($a[3],$row["run"]);
         }
@@ -155,8 +155,8 @@ function main($dbc, $run, $lapDistance, $user)
     $petsOnRun = array([],[],[]);
     
 
-    $q = 'SELECT wheels.wheel, animals.name, animals.breed FROM wheels, animals 
-    WHERE wheels.wheel = animals.wheel AND wheels.run = '.$run;
+    $q = 'SELECT wheel, teamName, breed FROM wheels 
+    WHERE run = '.$run;
     
     
     $r = mysqli_query($dbc,$q);
@@ -166,7 +166,7 @@ function main($dbc, $run, $lapDistance, $user)
         while($row = mysqli_fetch_array($r, MYSQLI_ASSOC))
         {
             array_push($petsOnRun[0],$row["wheel"]);
-            array_push($petsOnRun[1],$row["name"]);
+            array_push($petsOnRun[1],$row["teamName"]);
             array_push($petsOnRun[2],$row["breed"]);
         }
     }

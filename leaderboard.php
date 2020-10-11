@@ -25,12 +25,13 @@
             <li><a href="index.php">Home</a></li>
             <li class="active"><a href="leaderboard.php">Leaderboard</a></li>
             <li><a href="run.php<?php
-                if ( isset ( $_SESSION['pet']))
+                if ( isset ( $_SESSION['wheel']))
                 {
-                    echo "?pet=".$_SESSION['pet'];
+                    echo "?wheel=".$_SESSION['wheel'];
                 }            
             ?>">Run</a></li>
             <li><a href="stats.php">Stats</a></li>
+            <li><a href="pet.php">Pet Profiles</a></li>
 
         </ul>
         <ul class="nav navbar-nav navbar-right">
@@ -58,7 +59,7 @@
                 <thead>
                     <tr>
                     <th>Rank</th>
-                    <th>Pet</th>
+                    <th>Pets</th>
                     <th>Breed</th>
                     <th>Home</th>
                     <th></th>
@@ -75,9 +76,9 @@
                     // show 'runs' db function
                     function top10_dist($dbc)
                     {
-                        $q = 'SELECT animals.name, animals.breed, animals.country, wheels.cyber, ROUND(SUM(readings.distance)/1000, 1)
-                        FROM readings, animals, wheels 
-                        WHERE animals.wheel=readings.wheel AND animals.wheel = wheels.wheel
+                        $q = 'SELECT wheels.teamName, wheels.breed, wheels.country, wheels.cyber, ROUND(SUM(readings.distance)/1000, 1)
+                        FROM readings, wheels 
+                        WHERE wheels.wheel=readings.wheel
                         GROUP BY readings.wheel 
                         ORDER BY SUM(readings.distance) DESC LIMIT 10';
                         $r = mysqli_query($dbc,$q);
@@ -88,7 +89,7 @@
                             while($row = mysqli_fetch_array($r, MYSQLI_ASSOC))
                             {
                                 echo "<tr><td align=\"center\">". $rank++ .
-                                "</td><td>" . $row["name"]. "</td><td>";
+                                "</td><td>" . $row["teamName"]. "</td><td>";
 
                                 if($row["cyber"]==1){
                                     echo "<kbd>". ucwords($row["breed"]) ."</kbd>";
@@ -141,7 +142,7 @@
                 <thead>
                     <tr>
                     <th>Rank</th>
-                    <th>Pet</th>
+                    <th>Pets</th>
                     <th>Breed</th>
                     <th>Home</th>
                     <th>Flag</th>
@@ -156,9 +157,9 @@
                 // show 'runs' db function
                 function breed_dist($dbc,$breed)
                 {
-                    $q = 'SELECT animals.name, animals.breed, animals.country, wheels.cyber, ROUND(SUM(readings.distance)/1000, 1)
-                    FROM readings, animals, wheels 
-                    WHERE animals.wheel=readings.wheel AND animals.wheel=wheels.wheel AND animals.breed = "'.$breed.'"
+                    $q = 'SELECT wheels.teamName, wheels.breed, wheels.country, wheels.cyber, ROUND(SUM(readings.distance)/1000, 1)
+                    FROM readings, wheels 
+                    WHERE wheels.wheel=readings.wheel AND wheels.breed = "'.$breed.'"
                     GROUP BY readings.wheel 
                     ORDER BY SUM(readings.distance) DESC LIMIT 10';
                     $r = mysqli_query($dbc,$q);
@@ -169,7 +170,7 @@
                         while($row = mysqli_fetch_array($r, MYSQLI_ASSOC))
                         {
                             echo "<tr><td align=\"center\">". $rank++ .
-                            "</td><td>" . $row["name"]. "</td><td>";
+                            "</td><td>" . $row["teamName"]. "</td><td>";
                             
                             if($row["cyber"]==1){
                                 echo "<kbd>". ucwords($row["breed"]) ."</kbd>";
